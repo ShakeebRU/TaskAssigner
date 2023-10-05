@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:taskapp/providers/done_task_provider.dart';
 
 import '../components/rating_widget.dart';
+import '../models/user_model.dart';
+import '../utils/preferences.dart';
 import '../utils/utils.dart';
 
 class DoneTaskScreen extends StatefulWidget {
@@ -79,12 +81,16 @@ class _DoneTaskScreenState extends State<DoneTaskScreen> {
     // }
   }
 
+  UserModel? user;
   @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-    // Provider.of<DoneTaskProvider>(context, listen: false)
-    //     .disposeControllers();
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    initialize();
+  }
+
+  initialize() async {
+    user = await Preferences.init().then((value) => value.getAuth());
   }
 
   @override
@@ -303,20 +309,24 @@ class _DoneTaskScreenState extends State<DoneTaskScreen> {
                                       //           ? Colors.green
                                       //           : Colors.red),
                                       // ),
-                                      IconButton(
-                                          onPressed: () async {
-                                            await _showRemarksDialog(
-                                                context,
-                                                controller.searchList!
-                                                    .listdata[index].taskID);
-                                            controller.remarksController
-                                                .clear();
-                                            setState(() {});
-                                          },
-                                          icon: const Icon(
-                                            Icons.arrow_forward_ios,
-                                            color: Utils.backgroudColor,
-                                          ))
+                                      user!.userType.toLowerCase() != "customer"
+                                          ? IconButton(
+                                              onPressed: () async {
+                                                await _showRemarksDialog(
+                                                    context,
+                                                    controller
+                                                        .searchList!
+                                                        .listdata[index]
+                                                        .taskID);
+                                                controller.remarksController
+                                                    .clear();
+                                                setState(() {});
+                                              },
+                                              icon: const Icon(
+                                                Icons.arrow_forward_ios,
+                                                color: Utils.backgroudColor,
+                                              ))
+                                          : SizedBox.shrink(),
                                     ],
                                   ),
                                 ),

@@ -1,3 +1,4 @@
+import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:taskapp/utils/utils.dart';
@@ -16,6 +17,10 @@ class _LoginScreenState extends State<LoginScreen> {
   TextEditingController passwordController = TextEditingController();
   bool isVisible = true;
 
+  //_______________________
+
+  bool positive = false;
+  //_______________________
   @override
   void dispose() {
     // TODO: implement dispose
@@ -31,12 +36,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5FFFF),
-      body: Container(
+      body: SizedBox(
         height: height,
         width: width,
         child: ListView(
           children: [
-            Container(
+            SizedBox(
               width: width,
               height: height * 0.2,
               // color: Colors.amber,
@@ -131,7 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         child: Row(
                           children: [
-                            Container(
+                            SizedBox(
                               width: width * 0.8,
                               child: TextFormField(
                                 obscureText: isVisible,
@@ -148,7 +153,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 isVisible = !isVisible;
                                 setState(() {});
                               },
-                              child: Container(
+                              child: SizedBox(
                                 child: Center(
                                   child: Icon(isVisible
                                       ? Icons.visibility_off
@@ -169,56 +174,125 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: height * 0.07),
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: InkWell(
-                          onTap: () async {
-                            final controller = Provider.of<LoginProvider>(
-                                context,
-                                listen: false);
-                            await controller.checkLogin(emailController.text,
-                                passwordController.text, context);
-                          },
-                          child: Container(
-                            width: 146,
-                            height: 54,
-                            decoration: ShapeDecoration(
-                              gradient: const LinearGradient(
-                                begin: Alignment(1.00, 0.06),
-                                end: Alignment(-1, -0.06),
-                                colors: [
-                                  Utils.lightbackgroudColor,
-                                  Utils.backgroudColor
-                                ],
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(50),
-                              ),
-                            ),
-                            child: const Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Text(
-                                  'LOGIN',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 17,
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.w600,
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding:
+                              EdgeInsets.symmetric(vertical: height * 0.03),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text("Customer"),
+                              Switch(
+                                  activeColor: Utils.backgroudColor,
+                                  value: positive,
+                                  onChanged: (val) {
+                                    positive = val;
+                                    print(positive ? "Employee" : "Customer");
+                                    setState(() {});
+                                  }),
+                              const Text("Employee"),
+                            ],
+                          ),
+                          // child: Align(
+                          //   // alignment: Alignment.center,
+                          //   child: AnimatedToggleSwitch<bool>.dual(
+                          //     current: positive,
+                          //     first: false,
+                          //     second: true,
+                          //     spacing: 50.0,
+                          //     style: const ToggleStyle(
+                          //       borderColor: Colors.transparent,
+                          //       boxShadow: [
+                          //         BoxShadow(
+                          //           color: Colors.black26,
+                          //           spreadRadius: 1,
+                          //           blurRadius: 2,
+                          //           offset: Offset(0, 1.5),
+                          //         ),
+                          //       ],
+                          //     ),
+                          //     borderWidth: 5.0,
+                          //     height: 55,
+                          //     onChanged: (b) {
+                          //       setState(() => positive = b);
+
+                          //       // print(positive ? "Employee" : "Customer");
+                          //     },
+                          //     styleBuilder: (b) => ToggleStyle(
+                          //         indicatorColor: b
+                          //             ? Utils.lightbackgroudColor
+                          //             : Utils.backgroudColor),
+                          //     iconBuilder: (value) => value
+                          //         ? const Icon(Icons.tag_faces_rounded)
+                          //         : const Icon(
+                          //             Icons.tag_faces_rounded,
+                          //             color: Colors.white,
+                          //           ),
+                          //     textBuilder: (value) => value
+                          //         ? const Center(child: Text('Employee'))
+                          //         : const Center(child: Text('Customer')),
+                          //   ),
+                          // ),
+                        ),
+                        Padding(
+                          padding:
+                              EdgeInsets.symmetric(vertical: height * 0.03),
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: InkWell(
+                              onTap: () async {
+                                final controller = Provider.of<LoginProvider>(
+                                    context,
+                                    listen: false);
+                                await controller.checkLogin(
+                                    emailController.text,
+                                    passwordController.text,
+                                    positive ? "Employee" : "Customer",
+                                    context);
+                              },
+                              child: Container(
+                                width: 146,
+                                height: 54,
+                                decoration: ShapeDecoration(
+                                  gradient: const LinearGradient(
+                                    begin: Alignment(1.00, 0.06),
+                                    end: Alignment(-1, -0.06),
+                                    colors: [
+                                      Utils.lightbackgroudColor,
+                                      Utils.backgroudColor
+                                    ],
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(50),
                                   ),
                                 ),
-                                Icon(
-                                  Icons.arrow_right_alt,
-                                  color: Colors.white,
-                                  size: 30,
-                                )
-                              ],
+                                child: const Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    Text(
+                                      'LOGIN',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 17,
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    Icon(
+                                      Icons.arrow_right_alt,
+                                      color: Colors.white,
+                                      size: 30,
+                                    )
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
+                        )
+                      ],
                     )
                   ]),
             ),

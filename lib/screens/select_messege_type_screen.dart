@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:taskapp/providers/add_task_provider.dart';
 import 'package:taskapp/screens/text_screen.dart';
+import 'package:taskapp/screens/text_to_speech.dart';
 import 'package:taskapp/screens/voice_screen.dart';
 
 import '../utils/utils.dart';
@@ -13,6 +16,12 @@ class SelectMessageTypes extends StatefulWidget {
 }
 
 class _SelectMessageTypesState extends State<SelectMessageTypes> {
+  @override
+  void initState() {
+    super.initState();
+    Provider.of<AddTaskProvider>(context, listen: false).fetchData();
+  }
+
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
@@ -52,11 +61,53 @@ class _SelectMessageTypesState extends State<SelectMessageTypes> {
             GestureDetector(
               onTap: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return const TextToSpeech();
+                }));
+              },
+              child: Container(
+                height: height * 0.15,
+                width: width * 0.7,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color.fromARGB(255, 219, 163, 230),
+                      Utils.backgroudColor
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                  color: Utils.lightbackgroudColor,
+                ),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.mic,
+                        size: width * 0.1,
+                        color: Colors.white,
+                      ),
+                      Text(
+                        "Voice to Text",
+                        style: TextStyle(
+                            fontSize: width * 0.07,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
                   return const voiceScreen();
                 }));
               },
               child: Container(
-                height: height * 0.2,
+                height: height * 0.15,
                 width: width * 0.7,
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
@@ -82,7 +133,7 @@ class _SelectMessageTypesState extends State<SelectMessageTypes> {
                       Text(
                         "Audio",
                         style: TextStyle(
-                            fontSize: width * 0.1,
+                            fontSize: width * 0.07,
                             fontWeight: FontWeight.bold,
                             color: Colors.white),
                       ),
@@ -98,7 +149,7 @@ class _SelectMessageTypesState extends State<SelectMessageTypes> {
                 }));
               },
               child: Container(
-                height: height * 0.2,
+                height: height * 0.15,
                 width: width * 0.7,
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
@@ -124,7 +175,7 @@ class _SelectMessageTypesState extends State<SelectMessageTypes> {
                       Text(
                         "Text",
                         style: TextStyle(
-                            fontSize: width * 0.1,
+                            fontSize: width * 0.07,
                             fontWeight: FontWeight.bold,
                             color: Colors.white),
                       ),
@@ -140,7 +191,7 @@ class _SelectMessageTypesState extends State<SelectMessageTypes> {
                 }));
               },
               child: Container(
-                height: height * 0.2,
+                height: height * 0.15,
                 width: width * 0.7,
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
@@ -166,7 +217,7 @@ class _SelectMessageTypesState extends State<SelectMessageTypes> {
                       Text(
                         "Image",
                         style: TextStyle(
-                            fontSize: width * 0.1,
+                            fontSize: width * 0.07,
                             fontWeight: FontWeight.bold,
                             color: Colors.white),
                       ),

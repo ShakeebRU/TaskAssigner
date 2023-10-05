@@ -17,6 +17,7 @@ class Utils {
   static String cencelTask = "$endPoint/api/SingleTask/taskmaincancel";
   static String doneTask = "$endPoint/api/SingleTask/getdonetasklist";
   static String postTask = "$endPoint/api/SingleTask/taskmainpost";
+  static String aknowledge = "$endPoint/api/SingleTask/taskmaindone";
   static const backgroudColor = Colors.purple;
   static const lightbackgroudColor = Color.fromARGB(255, 219, 163, 230);
 

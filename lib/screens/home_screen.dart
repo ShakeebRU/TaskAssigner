@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:taskapp/providers/home_screen_provider.dart';
 import 'package:taskapp/screens/add_task_screen.dart';
+import '../models/user_model.dart';
+import '../utils/preferences.dart';
 import '../utils/utils.dart';
+import 'customer/task_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -168,8 +171,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               decoration: BoxDecoration(
                                   color: Colors.white,
                                   border: Border.all(color: Colors.black),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(12))),
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(12))),
                               padding: const EdgeInsets.only(left: 4),
                               child: TextFormField(
                                   onChanged: (value) async {
@@ -253,7 +256,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       //       fontSize: 12, color: Colors.green),
                                       // ),
                                       Text(
-                                        "To : ${controller.searchList!.listdata[index].employeeName.toString()}",
+                                        "To : ${controller.searchList!.listdata[index].employeeName.toString() != "" ? controller.searchList!.listdata[index].employeeName.toString() : controller.searchList!.listdata[index].detailName}",
                                         maxLines: 5,
                                         overflow: TextOverflow.ellipsis,
                                         style: const TextStyle(fontSize: 17),
@@ -278,12 +281,28 @@ class _HomeScreenState extends State<HomeScreen> {
                                     children: [
                                       IconButton(
                                           onPressed: () async {
-                                            await _showRemarksDialog(
-                                                context,
-                                                controller.searchList!
-                                                    .listdata[index].taskID);
-                                            controller.remarksController
-                                                .clear();
+                                            UserModel? user =
+                                                await Preferences.init().then(
+                                                    (value) => value.getAuth());
+                                            if (user!.userType.toLowerCase() ==
+                                                "customer") {
+                                              Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                      builder: (context) {
+                                                return TaskDetailScreen(
+                                                  data: controller.searchList!
+                                                      .listdata[index],
+                                                );
+                                              }));
+                                            } else {
+                                              await _showRemarksDialog(
+                                                  context,
+                                                  controller.searchList!
+                                                      .listdata[index].taskID);
+                                              controller.remarksController
+                                                  .clear();
+                                            }
+
                                             setState(() {});
                                           },
                                           icon: const Icon(

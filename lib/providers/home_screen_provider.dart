@@ -61,7 +61,8 @@ class HomeScreenProvider with ChangeNotifier {
     dynamic header = {'Authorization': "Bearer ${userData!.token}"};
     // print("${userData!.userID}");
     final response = await http.get(
-        Uri.parse(Utils.getActiveTasks + "?userid=${userData!.userID}"),
+        Uri.parse(Utils.getActiveTasks +
+            "?userid=${userData!.userID}&usertype=${userData!.userType}"),
         headers: header);
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);

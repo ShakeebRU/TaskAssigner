@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:taskapp/providers/new_home_screen_provider.dart';
 import '../utils/utils.dart';
+import 'customer_list_screen.dart';
 import 'new_home_screen.dart';
+import 'selection_screen.dart';
 
 class ImagePickScreen extends StatefulWidget {
   const ImagePickScreen({super.key});
@@ -78,10 +80,28 @@ class _ImagePickScreenState extends State<ImagePickScreen> {
                             onPressed: () async {
                               // await controller.pickImage();
                               // await controller.uplaodAudioImage(context);
-                              Navigator.of(context)
-                                  .push(MaterialPageRoute(builder: (context) {
-                                return const NewHomeScreen();
-                              }));
+                              // Navigator.of(context)
+                              //     .push(MaterialPageRoute(builder: (context) {
+                              //   return const NewHomeScreen();
+                              // }));
+                              String? choice =
+                                  await DialogUtils.showStringListDialog(
+                                      context);
+                              if (choice != null) {
+                                if (choice.toLowerCase() != "customers") {
+                                  print("NewHomeScreen");
+                                  Navigator.of(context).push(
+                                      MaterialPageRoute(builder: (context) {
+                                    return const NewHomeScreen();
+                                  }));
+                                } else {
+                                  print("CustomerScreen");
+                                  Navigator.of(context).push(
+                                      MaterialPageRoute(builder: (context) {
+                                    return const CustomerListScreen();
+                                  }));
+                                }
+                              }
                             },
                             child: const Row(
                               children: [Text('Submit'), Icon(Icons.check)],

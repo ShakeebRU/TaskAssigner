@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/new_home_screen_provider.dart';
 import '../utils/utils.dart';
+import 'customer_list_screen.dart';
 import 'new_home_screen.dart';
+import 'selection_screen.dart';
 
 class TextScreen extends StatefulWidget {
   const TextScreen({super.key});
@@ -91,6 +93,9 @@ class _TextScreenState extends State<TextScreen> {
                             ],
                           ),
                           child: TextField(
+                            expands: true,
+                            minLines: null,
+                            maxLines: null,
                             controller: _textEditingController,
                             onChanged: (value) {
                               controller.messegeController.text =
@@ -115,10 +120,24 @@ class _TextScreenState extends State<TextScreen> {
                                 if (controller.messegeText != "") {
                                   // await controller.uplaodAudioImage(context);
                                   // _textEditingController.clear();
-                                  Navigator.of(context).push(
-                                      MaterialPageRoute(builder: (context) {
-                                    return const NewHomeScreen();
-                                  }));
+                                  String? choice =
+                                      await DialogUtils.showStringListDialog(
+                                          context);
+                                  if (choice != null) {
+                                    if (choice.toLowerCase() != "customers") {
+                                      print("NewHomeScreen");
+                                      Navigator.of(context).push(
+                                          MaterialPageRoute(builder: (context) {
+                                        return const NewHomeScreen();
+                                      }));
+                                    } else {
+                                      print("CustomerScreen");
+                                      Navigator.of(context).push(
+                                          MaterialPageRoute(builder: (context) {
+                                        return const CustomerListScreen();
+                                      }));
+                                    }
+                                  }
                                 } else {
                                   Utils.flushBarErrorMessage(
                                       "Enter Some Text", context);

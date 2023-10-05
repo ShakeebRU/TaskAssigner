@@ -56,6 +56,7 @@ class NewHomeScreenProvider with ChangeNotifier {
   }
 
   String str = "";
+  int? selectedCustumerId;
   String messegeText = "";
   Future<String> imageToBase64(XFile imageFile) async {
     List<int> imageBytes = await imageFile.readAsBytes();
@@ -64,13 +65,17 @@ class NewHomeScreenProvider with ChangeNotifier {
   }
 
   Future uplaodAudioImage(BuildContext context) async {
+    await Preferences.init().then((value) {
+      userData = value.getAuth();
+    });
     if (pickedImage != null) {
       str = await imageToBase64(pickedImage!);
     }
     Map<String, dynamic> data = {
       "userID": userData!.userID,
+      "detailCode": selectedCustumerId,
       "taskDetail": messegeController.text,
-      "stafflist": staffController,
+      "stafflist": staffController.length == 0 ? null : staffController,
       "messageType": pickedImage != null
           ? "Image"
           : str != ""
@@ -107,22 +112,22 @@ class NewHomeScreenProvider with ChangeNotifier {
         staffController = [];
         selectedStaffList = [];
 
-        submitAlertCustom(context);
+        await submitAlertCustom(context);
         // Future.delayed(const Duration(seconds: 2));
         // Navigator.pushReplacement(context,
         //     MaterialPageRoute(builder: (context) => const MainScreen()));
       } else {
-        errorCustom(response.body, context);
+        await errorCustom(response.body, context);
       }
       // print(jsonData);
     } else {
       // Handle API error
-      errorCustom(response.body, context);
+      await errorCustom(response.body, context);
       print("Error : ${response.statusCode}");
     }
   }
 
-  void submitAlertCustom(BuildContext context) {
+  Future<void> submitAlertCustom(BuildContext context) async {
     Dialog doneDialog = Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       //this right here
@@ -140,7 +145,7 @@ class NewHomeScreenProvider with ChangeNotifier {
                   child: Lottie.network(
                       "https://lottie.host/205f9a22-3e08-4884-8fb1-31b3ea473735/CHLMhdKkEo.json")),
             ),
-            Padding(padding: EdgeInsets.only(top: 5.0)),
+            const Padding(padding: EdgeInsets.only(top: 5.0)),
             TextButton(
                 onPressed: () {
                   //  Navigator.of(context).pop();
@@ -157,13 +162,13 @@ class NewHomeScreenProvider with ChangeNotifier {
         ),
       ),
     );
-    showDialog(
+    await showDialog(
         barrierDismissible: false,
         context: context,
         builder: (BuildContext context) => doneDialog);
   }
 
-  void errorCustom(String msg, BuildContext context) {
+  Future<void> errorCustom(String msg, BuildContext context) async {
     Dialog errorDialog = Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       //this right here
@@ -197,7 +202,37 @@ class NewHomeScreenProvider with ChangeNotifier {
         ),
       ),
     );
-    showDialog(
+    await showDialog(
         context: context, builder: (BuildContext context) => errorDialog);
+  }
+
+  Future<bool> postTask(int taskId, BuildContext context) async {
+    UserModel? userData;
+    await Preferences.init().then((value) {
+      userData = value.getAuth();
+    });
+    // print(userData!.userID);
+    dynamic header = {'Authorization': "Bearer ${userData!.token}"};
+    // print("${userData!.userID}");
+    final response = await http.post(
+        Uri.parse(
+            "${Utils.aknowledge}?taskid=$taskId&remarks=empty&ratingpoints=0"),
+        headers: header);
+    if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body);
+      print(jsonData);
+      // Utils.flushBarSuccessfulMessage("updated Task Successfully", context);
+      // Future.delayed(Duration(seconds: 1));
+      await submitAlertCustom(context);
+      if (Navigator.of(context).canPop()) {
+        Navigator.pop(context);
+      }
+    } else {
+      // ignore: unnecessary_string_interpolations
+      await errorCustom(response.body, context);
+      print("Error : ${response.statusCode}");
+      print("Error : ${response.body}");
+    }
+    return true;
   }
 }

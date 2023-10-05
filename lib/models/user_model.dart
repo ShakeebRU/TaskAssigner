@@ -7,6 +7,7 @@ class UserModel {
     required this.email,
     required this.description,
     required this.employeeId,
+    required this.userType,
     required this.accountStatus,
     required this.status,
     required this.message,
@@ -18,6 +19,7 @@ class UserModel {
   late final String email;
   late final String description;
   late final int employeeId;
+  late final String userType;
   late final String accountStatus;
   late final bool status;
   late final String message;
@@ -30,6 +32,7 @@ class UserModel {
     email = json['email'];
     description = json['description'];
     employeeId = json['employeeId'];
+    userType = json['userType'];
     accountStatus = json['accountStatus'];
     status = json['status'];
     message = json['message'];
@@ -45,6 +48,7 @@ class UserModel {
     _data['description'] = description;
     _data['employeeId'] = employeeId;
     _data['accountStatus'] = accountStatus;
+    _data['userType'] = userType;
     _data['status'] = status;
     _data['message'] = message;
     return _data;

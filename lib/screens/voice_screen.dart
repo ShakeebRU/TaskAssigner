@@ -1,17 +1,22 @@
+// import 'package:audioplayers/audioplayers.dart';
 import 'package:awesome_ripple_animation/awesome_ripple_animation.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'dart:io';
+import 'package:http/http.dart' as http;
 import 'package:flutter_sound/flutter_sound.dart';
-import 'package:flutter_sound/public/flutter_sound_player.dart';
+// import 'package:flutter_sound/public/flutter_sound_player.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
-import 'package:flutter_sound/public/flutter_sound_recorder.dart';
+// import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import '../providers/new_home_screen_provider.dart';
 import '../utils/utils.dart';
+import 'customer_list_screen.dart';
 import 'new_home_screen.dart';
+import 'selection_screen.dart';
 
 class voiceScreen extends StatefulWidget {
   const voiceScreen({super.key});
@@ -29,7 +34,7 @@ class _voiceScreenState extends State<voiceScreen> {
   bool _isRecording = false;
   String _recognizedText = '';
   bool _isPlaying = false;
-  bool _isLoading = false;
+  bool isLoading = false;
   @override
   void initState() {
     super.initState();
@@ -46,15 +51,20 @@ class _voiceScreenState extends State<voiceScreen> {
 
   Future<void> _initRecorder() async {
     await _audioRecorder.openRecorder();
-    await _startRecording();
+    // await _startRecording();
   }
 
+  String path = '';
   Future<void> _startRecording() async {
     await _audioRecorder.openRecorder();
     if (await Permission.microphone.request().isGranted) {
+      final directory =
+          await getApplicationDocumentsDirectory(); // Get app documents directory
+      final filePath = '${directory.path}/my_audio.wav';
+      path = filePath;
       await _audioRecorder.startRecorder(
-        toFile: 'temp_audio.mp4',
-        codec: Codec.aacMP4,
+        toFile: "$filePath",
+        codec: Codec.pcm16WAV,
       );
       setState(() {
         _isRecording = true;
@@ -66,14 +76,66 @@ class _voiceScreenState extends State<voiceScreen> {
   Duration? duration;
   Future<void> _stopRecording() async {
     recordedFilePath = await _audioRecorder.stopRecorder() ?? "";
-
-    await _playRecording();
-    _isLoading = true;
+    // await _playRecording();
+    isLoading = true;
     // Future.delayed(duration!);
     // await _playRecording();
     setState(() {
       _isRecording = false;
     });
+    _textEditingController.text = await convertAudioToText(path);
+    setState(() {});
+  }
+
+  Future<String> convertAudioToText(String audioFilePath) async {
+    // Implement your code here to send audio to Google Cloud Speech-to-Text API
+    // and retrieve the transcribed text
+    // Example of making an HTTP POST request
+    // Replace 'YOUR_API_KEY' with your actual Google Cloud API key
+    // File(path)
+    List<int> audioBytes = File(audioFilePath).readAsBytesSync();
+    print("body  :  ${jsonEncode({
+          'config': {
+            'encoding': 'LINEAR16',
+            'sampleRateHertz': 16000,
+            'languageCode': 'ur-PK',
+          },
+          'audio': {
+            'content': base64Encode(audioBytes),
+          },
+        })}");
+
+    final response = await http.post(
+      Uri.parse(
+          'https://speech.googleapis.com/v1/speech:recognize?key=AIzaSyDn9Xj_zLGoVCFzxDYRa3GSYWvQ1E-IxVg'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'config': {
+          'encoding': 'LINEAR16',
+          'sampleRateHertz': 16000,
+          'languageCode': 'ur-PK',
+        },
+        'audio': {
+          'content': base64Encode(audioBytes),
+        },
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+
+      print("Data : ${data}");
+      if (data['results'] != null && data['results'].isNotEmpty) {
+        isLoading = false;
+        setState(() {});
+        return data['results'][0]['alternatives'][0]['transcript'];
+      }
+    }
+    print("Error : ${response.statusCode}");
+    print('API Response: ${response.body}');
+    isLoading = false;
+    setState(() {});
+    return 'Transcription not available';
   }
 
   void _initSpeech() async {
@@ -83,17 +145,19 @@ class _voiceScreenState extends State<voiceScreen> {
 
   Future<void> _startListening() async {
     await _speechToText.listen(
-      pauseFor: const Duration(seconds: 40),
-      // listenFor: Duration(seconds: 10),
+      pauseFor: const Duration(minutes: 5),
+      listenFor: const Duration(minutes: 5),
       listenMode: stt.ListenMode.confirmation,
-      onResult: _onSpeechResult,
       localeId: 'en_US', // Replace 'en_US' with the language code you want
+      onResult: _onSpeechResult,
     );
+    isLoading = true;
     setState(() {});
   }
 
   Future<void> _stopListening() async {
     await _speechToText.stop();
+    isLoading = false;
     setState(() {});
   }
 
@@ -110,7 +174,7 @@ class _voiceScreenState extends State<voiceScreen> {
     if (_isPlaying) {
       await _audioPlayer1.stopPlayer();
       await _stopListening();
-      _isLoading = false;
+      isLoading = false;
       setState(() {
         _isPlaying = false;
       });
@@ -128,16 +192,11 @@ class _voiceScreenState extends State<voiceScreen> {
             controller1.str = s;
             controller1.messegeText = _textEditingController.text;
             controller1.messegeController.text = _textEditingController.text;
-            // if (controller1.messegeText != "") {
-            // await controller1.uplaodAudioImage(context);
-            // _textEditingController.clear();
-            await Future.delayed(Duration(seconds: 5));
-            Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-              return const NewHomeScreen();
-            }));
-            // } else {
-            //   Utils.flushBarErrorMessage("Record message again", context);
-            // }
+
+            // await Future.delayed(const Duration(seconds: 5));
+            // Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+            //   return const NewHomeScreen();
+            // }));
           });
       setState(() {
         _isPlaying = true;
@@ -147,7 +206,7 @@ class _voiceScreenState extends State<voiceScreen> {
 
   Future<String> convertAudio() async {
     String str = "";
-    String filePath = '${recordedFilePath}';
+    String filePath = '${path}';
     if (filePath != "") {
       List<int> audioBytes = File(filePath).readAsBytesSync();
       return base64Encode(audioBytes);
@@ -203,12 +262,13 @@ class _voiceScreenState extends State<voiceScreen> {
           ),
         ),
         body: Consumer<NewHomeScreenProvider>(
-          builder: (context, controller, child) => Column(
+          builder: (context, controller, child) => ListView(
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                child: ListView(
+                  shrinkWrap: true,
+                  // mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
                       height: height * 0.4,
@@ -231,7 +291,10 @@ class _voiceScreenState extends State<voiceScreen> {
                         ],
                       ),
                       child: TextField(
+                        minLines: null,
+                        maxLines: null,
                         readOnly: true,
+                        expands: true,
                         controller: _textEditingController,
                         onChanged: (value) {
                           controller.messegeController.text =
@@ -245,49 +308,73 @@ class _voiceScreenState extends State<voiceScreen> {
                     SizedBox(
                       height: height * 0.15,
                     ),
-                    RippleAnimation(
-                      size: Size(width * 0.17, width * 0.17),
-                      repeat: true,
-                      color: Utils.backgroudColor,
-                      minRadius: _isRecording ? 90 : 0,
-                      ripplesCount: 6,
-                      child: Container(
-                        padding: const EdgeInsets.all(5),
-                        child: FloatingActionButton(
-                          onPressed: () async {
-                            if (_textEditingController.text == "") {
-                              if (_isRecording) {
-                                await _stopRecording();
-                              } else {
-                                await _startRecording();
-                              }
-                            } else {
-                              String s = await convertAudio();
-                              controller.str = s;
-                              controller.messegeText =
-                                  _textEditingController.text;
-                              if (controller.messegeText != "") {
-                                // await controller.uplaodAudioImage(context);
-                                // _textEditingController.clear();
-                                Navigator.of(context)
-                                    .push(MaterialPageRoute(builder: (context) {
-                                  return const NewHomeScreen();
-                                }));
-                              } else {
-                                Utils.flushBarErrorMessage(
-                                    "Record message again", context);
-                              }
-                            }
-                          },
-                          tooltip: 'Listen',
-                          child: Icon(_textEditingController.text == ""
-                              ? _isRecording
-                                  ? Icons.mic
-                                  : Icons.mic_off
-                              : Icons.send),
-                        ),
-                      ),
-                    )
+                    isLoading
+                        ? const Center(
+                            child: CircularProgressIndicator(),
+                          )
+                        : Center(
+                            child: RippleAnimation(
+                              size: Size(width * 0.17, width * 0.17),
+                              repeat: true,
+                              color: Utils.backgroudColor,
+                              minRadius: _isRecording ? 90 : 0,
+                              ripplesCount: 6,
+                              child: Container(
+                                padding: const EdgeInsets.all(5),
+                                child: FloatingActionButton(
+                                  onPressed: () async {
+                                    if (_textEditingController.text == "") {
+                                      if (_isRecording) {
+                                        await _stopRecording();
+                                      } else {
+                                        await _startRecording();
+                                      }
+                                    } else {
+                                      String s = await convertAudio();
+                                      controller.str = s;
+                                      controller.messegeText =
+                                          _textEditingController.text;
+                                      controller.messegeController.text =
+                                          _textEditingController.text;
+                                      if (controller.messegeText != "") {
+                                        // await controller.uplaodAudioImage(context);
+                                        // _textEditingController.clear();
+                                        String? choice = await DialogUtils
+                                            .showStringListDialog(context);
+                                        if (choice != null) {
+                                          if (choice.toLowerCase() !=
+                                              "customers") {
+                                            print("NewHomeScreen");
+                                            Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                    builder: (context) {
+                                              return const NewHomeScreen();
+                                            }));
+                                          } else {
+                                            print("CustomerScreen");
+                                            Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                    builder: (context) {
+                                              return const CustomerListScreen();
+                                            }));
+                                          }
+                                        }
+                                      } else {
+                                        Utils.flushBarErrorMessage(
+                                            "Record message again", context);
+                                      }
+                                    }
+                                  },
+                                  tooltip: 'Listen',
+                                  child: Icon(_textEditingController.text == ""
+                                      ? _isRecording
+                                          ? Icons.mic
+                                          : Icons.mic_off
+                                      : Icons.send),
+                                ),
+                              ),
+                            ),
+                          ),
                   ],
                 ),
               )

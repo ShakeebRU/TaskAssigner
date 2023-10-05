@@ -2,7 +2,7 @@ class CustomerListModel {
   CustomerListModel({
     required this.listdata,
   });
-  late final List<Listdata> listdata;
+  late List<Listdata> listdata;
 
   CustomerListModel.fromJson(Map<String, dynamic> json) {
     listdata =

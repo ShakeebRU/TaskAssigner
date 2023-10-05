@@ -56,7 +56,11 @@ class AddTaskProvider with ChangeNotifier {
   late TaskTypeModel taskTypes;
   String? selectedTaskType;
 
-  late CustomerListModel customerList;
+  CustomerListModel customerList = CustomerListModel.fromJson({"listdata": []});
+  CustomerListModel customerSearchList =
+      CustomerListModel.fromJson({"listdata": []});
+
+  int? selectedCustumerId;
   late StaffListModel staffList;
   List<String> selectedStaffList = [];
   List<StaffControllerModel> staffController = [];
@@ -75,6 +79,8 @@ class AddTaskProvider with ChangeNotifier {
       userData = value.getAuth();
     });
     await getCustomer();
+
+    await getStaff();
     isLoading = false;
     notifyListeners();
   }
@@ -85,16 +91,33 @@ class AddTaskProvider with ChangeNotifier {
         Uri.parse(Utils.getCustomerList + "?search=${customerController.text}"),
         headers: header);
     if (response1.statusCode == 200) {
+      // print(response1.body);
       final jsonData = json.decode(response1.body);
       customerList = CustomerListModel.fromJson(jsonData);
+      customerSearchList = CustomerListModel.fromJson(jsonData);
+      ;
+      print("List Length : ${customerList.listdata.length}");
     } else {
       // Handle API error
       print("Error : ${response1.statusCode}");
       customerList = CustomerListModel.fromJson({"listdata": []});
+      customerSearchList = CustomerListModel.fromJson({"listdata": []});
     }
-    getStaff();
     notifyListeners();
     // return customerList;
+  }
+
+  Future getCustumerSearch() async {
+    customerSearchList = CustomerListModel.fromJson({"listdata": []});
+    if (customerController.text != "") {
+      customerSearchList.listdata = customerList.listdata
+          .where((element) => element.name
+              .toLowerCase()
+              .contains(customerController.text.toLowerCase()))
+          .toList();
+    } else {
+      customerSearchList.listdata = customerList.listdata;
+    }
   }
 
   Future<StaffListModel> getStaff() async {
@@ -231,7 +254,7 @@ class AddTaskProvider with ChangeNotifier {
       },
       "userID": userData!.userID,
       "taskDetail": description,
-      "detailCode": int.parse(selectedTaskType!),
+      "detailCode": selectedCustumerId!,
       "contactNoEmail": emailController.text,
       "contactPerson": numberController.text,
       "dueDateAlert": isChecked ? 1 : 0,
@@ -254,7 +277,7 @@ class AddTaskProvider with ChangeNotifier {
       result = ResultModel.fromJson(jsonData);
       if (result!.status) {
         Utils.flushBarSuccessfulMessage("Task Created Successfully", context);
-
+        staffController = [];
         dateController.clear();
         timeController.clear();
         emailController.clear();
@@ -266,6 +289,7 @@ class AddTaskProvider with ChangeNotifier {
         staffTextController.clear();
         selectedTaskType = null;
         isChecked = false;
+        selectedCustumerId = null;
         notifyListeners();
       }
 

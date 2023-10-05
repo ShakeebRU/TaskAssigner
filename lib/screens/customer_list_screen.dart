@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/add_task_provider.dart';
+import '../providers/new_home_screen_provider.dart';
 import '../utils/utils.dart';
 
 class CustomerListScreen extends StatefulWidget {
@@ -36,7 +37,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
           flexibleSpace: Container(
             // height: height * 0.1,
             // width: width,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
                 color: Utils.backgroudColor,
                 borderRadius: BorderRadius.only(
                     bottomLeft: Radius.circular(20),
@@ -72,7 +73,8 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                           padding: const EdgeInsets.only(left: 4),
                           child: TextFormField(
                               onChanged: (value) async {
-                                await controller.getCustomer();
+                                await controller.getCustumerSearch();
+                                setState(() {});
                               },
                               decoration: const InputDecoration(
                                   hintText: "Search Customer",
@@ -95,7 +97,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                   child: ListView.separated(
                     shrinkWrap: true,
                     physics: const ScrollPhysics(),
-                    itemCount: controller.customerList.listdata.length,
+                    itemCount: controller.customerSearchList.listdata.length,
                     separatorBuilder: (BuildContext context, int index) {
                       return const Divider(
                         color: Colors.grey,
@@ -105,22 +107,29 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                     itemBuilder: (BuildContext context, int index) {
                       return ListTile(
                         tileColor: Colors.white,
-                        onTap: () {
-                          controller.customerController.text = controller
-                              .customerList.listdata[index].name
-                              .toString();
-                          controller.customerCode = controller
-                              .customerList.listdata[index].customerCode
-                              .toString();
-                          Navigator.of(context).pop();
+                        onTap: () async {
+                          final controller3 =
+                              Provider.of<NewHomeScreenProvider>(context,
+                                  listen: false);
+                          controller3.selectedCustumerId = controller
+                              .customerSearchList.listdata[index].customerCode;
+                          controller.customerController.text = "";
+                          await controller3.uplaodAudioImage(context);
+                          // controller.customerController.text = controller
+                          //     .customerList.listdata[index].name
+                          //     .toString();
+                          // controller.customerCode = controller
+                          //     .customerList.listdata[index].customerCode
+                          //     .toString();
+                          // Navigator.of(context).pop();
                         },
                         leading: Text(controller
-                            .customerList.listdata[index].customerCode
+                            .customerSearchList.listdata[index].customerCode
                             .toString()),
-                        title:
-                            Text(controller.customerList.listdata[index].name),
-                        subtitle: Text(
-                            controller.customerList.listdata[index].cityName),
+                        title: Text(
+                            controller.customerSearchList.listdata[index].name),
+                        subtitle: Text(controller
+                            .customerSearchList.listdata[index].cityName),
                         trailing: const Icon(Icons.arrow_forward_ios_rounded),
                       );
                     },
