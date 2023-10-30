@@ -49,73 +49,84 @@ class _ImagePickScreenState extends State<ImagePickScreen> {
         ),
         body: Consumer<NewHomeScreenProvider>(
           builder: (context, controller, child) => Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                if (controller.pickedImage != null)
-                  Image.file(
-                    File(controller.pickedImage!.path),
-                    width: width * 0.9,
-                    height: height * 0.6,
-                    fit: BoxFit.cover,
-                  )
-                else
-                  const Text('No image selected.'),
-                const SizedBox(height: 20),
-                controller.pickedImage != null
-                    ? Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () async {
-                              // await controller.pickImage();
-                              controller.pickedImage = null;
-                              setState(() {});
-                            },
-                            child: const Row(
-                              children: [Text('Cencel'), Icon(Icons.delete)],
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  if (controller.pickedImage != null)
+                    GridView.builder(
+                        shrinkWrap: true,
+                        itemCount: controller.pickedImage!.length,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisSpacing: 5,
+                            mainAxisSpacing: 5,
+                            crossAxisCount: 2),
+                        itemBuilder: (context, index) {
+                          return Image.file(
+                            File(controller.pickedImage![index].path),
+                            width: width * 0.9,
+                            height: height * 0.6,
+                            fit: BoxFit.cover,
+                          );
+                        })
+                  else
+                    const Text('No image selected.'),
+                  const SizedBox(height: 20),
+                  controller.pickedImage != null
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () async {
+                                // await controller.pickImage();
+                                controller.pickedImage = null;
+                                setState(() {});
+                              },
+                              child: const Row(
+                                children: [Text('Cencel'), Icon(Icons.delete)],
+                              ),
                             ),
-                          ),
-                          ElevatedButton(
-                            onPressed: () async {
-                              // await controller.pickImage();
-                              // await controller.uplaodAudioImage(context);
-                              // Navigator.of(context)
-                              //     .push(MaterialPageRoute(builder: (context) {
-                              //   return const NewHomeScreen();
-                              // }));
-                              String? choice =
-                                  await DialogUtils.showStringListDialog(
-                                      context);
-                              if (choice != null) {
-                                if (choice.toLowerCase() != "customers") {
-                                  print("NewHomeScreen");
-                                  Navigator.of(context).push(
-                                      MaterialPageRoute(builder: (context) {
-                                    return const NewHomeScreen();
-                                  }));
-                                } else {
-                                  print("CustomerScreen");
-                                  Navigator.of(context).push(
-                                      MaterialPageRoute(builder: (context) {
-                                    return const CustomerListScreen();
-                                  }));
+                            ElevatedButton(
+                              onPressed: () async {
+                                // await controller.pickImage();
+                                // await controller.uplaodAudioImage(context);
+                                // Navigator.of(context)
+                                //     .push(MaterialPageRoute(builder: (context) {
+                                //   return const NewHomeScreen();
+                                // }));
+                                String? choice =
+                                    await DialogUtils.showStringListDialog(
+                                        context);
+                                if (choice != null) {
+                                  if (choice.toLowerCase() != "customers") {
+                                    print("NewHomeScreen");
+                                    Navigator.of(context).push(
+                                        MaterialPageRoute(builder: (context) {
+                                      return const NewHomeScreen();
+                                    }));
+                                  } else {
+                                    print("CustomerScreen");
+                                    Navigator.of(context).push(
+                                        MaterialPageRoute(builder: (context) {
+                                      return const CustomerListScreen();
+                                    }));
+                                  }
                                 }
-                              }
-                            },
-                            child: const Row(
-                              children: [Text('Submit'), Icon(Icons.check)],
+                              },
+                              child: const Row(
+                                children: [Text('Submit'), Icon(Icons.check)],
+                              ),
                             ),
-                          ),
-                        ],
-                      )
-                    : ElevatedButton(
-                        onPressed: () async {
-                          await controller.pickImage();
-                        },
-                        child: const Text('Pick Image'),
-                      ),
-              ],
+                          ],
+                        )
+                      : ElevatedButton(
+                          onPressed: () async {
+                            await controller.pickImage();
+                          },
+                          child: const Text('Pick Image'),
+                        ),
+                ],
+              ),
             ),
           ),
         ));

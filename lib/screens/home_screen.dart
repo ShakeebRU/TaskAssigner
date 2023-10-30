@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:taskapp/providers/home_screen_provider.dart';
 import 'package:taskapp/screens/add_task_screen.dart';
+import '../components/images_widget.dart';
 import '../models/user_model.dart';
 import '../utils/preferences.dart';
 import '../utils/utils.dart';
@@ -267,6 +268,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                         // overflow: TextOverflow.ellipsis,
                                         style: const TextStyle(fontSize: 15),
                                       ),
+                                      controller.searchList!.listdata[index]
+                                                  .messageType
+                                                  .toLowerCase() ==
+                                              "image"
+                                          ? ImagesWidget(
+                                              taskId: controller.searchList!
+                                                  .listdata[index].taskID,
+                                            )
+                                          : const SizedBox.shrink()
                                     ],
                                   ),
                                 ),

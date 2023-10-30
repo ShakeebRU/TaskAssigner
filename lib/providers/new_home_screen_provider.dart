@@ -37,13 +37,13 @@ class NewHomeScreenProvider with ChangeNotifier {
     return staffList;
   }
 
-  XFile? pickedImage;
+  List<XFile>? pickedImage;
   Future<void> pickImage() async {
     final PermissionStatus status = await Permission.camera.request();
     // final PermissionStatus status = await Permission.photos.request();
     if (status.isGranted) {
       final picker = ImagePicker();
-      final pickedImage1 = await picker.pickImage(source: ImageSource.gallery);
+      final pickedImage1 = await picker.pickMultiImage();
       pickedImage = pickedImage1;
       notifyListeners();
     } else if (status.isDenied) {
@@ -69,7 +69,7 @@ class NewHomeScreenProvider with ChangeNotifier {
       userData = value.getAuth();
     });
     if (pickedImage != null) {
-      str = await imageToBase64(pickedImage!);
+      // str = await imageToBase64(pickedImage!);
     }
     Map<String, dynamic> data = {
       "userID": userData!.userID,
@@ -106,11 +106,36 @@ class NewHomeScreenProvider with ChangeNotifier {
       ResultModel result1 = ResultModel.fromJson(jsonData);
       if (result1.status) {
         // Utils.flushBarSuccessfulMessage("Uploaded Successfully", context);
+        if (pickedImage != null) {
+          for (int i = 0; i < pickedImage!.length; i++) {
+            String image = await imageToBase64(pickedImage![i]);
+            Map<String, dynamic> data1 = {
+              "computerNo": int.parse(result1.returnId),
+              "imageBase64": "$image",
+              "audioTranslate": "string",
+              "type": "string",
+              "subID": i,
+              "imageURL": "string"
+            };
+
+            print("data : ${jsonEncode(data1)}");
+            Map<String, String> header1 = {
+              'Authorization': 'Bearer ${userData!.token}',
+              'Content-Type': 'application/json'
+            };
+            // print(data);
+            Response response1 = await post(Uri.parse(Utils.uploadImagesTask),
+                headers: header1, body: jsonEncode(data1));
+            print(response1.body);
+          }
+        }
+
         messegeController.clear();
         pickedImage = null;
         str = "";
         staffController = [];
         selectedStaffList = [];
+        print(result1.returnId);
 
         await submitAlertCustom(context);
         // Future.delayed(const Duration(seconds: 2));

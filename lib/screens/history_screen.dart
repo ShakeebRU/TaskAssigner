@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:taskapp/providers/history_provider.dart';
 
+import '../components/images_widget.dart';
 import '../utils/utils.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -191,6 +192,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                         // overflow: TextOverflow.ellipsis,
                                         style: const TextStyle(fontSize: 15),
                                       ),
+                                      controller.searchList!.listdata[index]
+                                                  .messageType
+                                                  .toLowerCase() ==
+                                              "image"
+                                          ? ImagesWidget(
+                                              taskId: controller.searchList!
+                                                  .listdata[index].taskID,
+                                            )
+                                          : const SizedBox.shrink()
                                     ],
                                   ),
                                 ),

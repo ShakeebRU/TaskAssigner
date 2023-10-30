@@ -10,7 +10,6 @@ import 'package:taskapp/providers/login_provider.dart';
 import 'package:taskapp/providers/new_home_screen_provider.dart';
 import 'package:taskapp/screens/auth/login_screen.dart';
 import 'package:taskapp/screens/main_screen.dart';
-import 'providers/audio_controller.dart';
 import 'screens/customer/home_screen.dart';
 import 'utils/preferences.dart';
 
