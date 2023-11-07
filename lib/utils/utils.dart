@@ -12,10 +12,12 @@ class Utils {
   static String createtask = "$endPoint/api/Task/taskmaininsert";
   static String getActiveTasks = "$endPoint/api/SingleTask/getactivetasklist";
   static String getTasksImages = "$endPoint/api/SingleTask/gettaskimageslist";
+  static String getTasksPDFs = "$endPoint/api/SingleTask/gettaskpdflist";
   static String getHistoryTasks = "$endPoint/api/SingleTask/getclosedtasklist";
   static String uploadAudioImage = "$endPoint/api/Task/taskinsertimageaudio";
   static String uploadSingletask = "$endPoint/api/SingleTask/taskmaininsert";
   static String uploadImagesTask = "$endPoint/api/SingleTask/taskinsertimage";
+  static String uploadPDFTask = "$endPoint/api/SingleTask/taskinsertpdf";
   static String cencelTask = "$endPoint/api/SingleTask/taskmaincancel";
   static String doneTask = "$endPoint/api/SingleTask/getdonetasklist";
   static String postTask = "$endPoint/api/SingleTask/taskmainpost";

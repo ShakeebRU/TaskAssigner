@@ -26,7 +26,6 @@ class _MainScreenState extends State<MainScreen> {
         automaticallyImplyLeading: false,
         backgroundColor: const Color(0xFFF5FFFF),
         // backgroundColor: Utils.backgroudColor,
-
         title: const Center(
           child: Text(
             "Home",

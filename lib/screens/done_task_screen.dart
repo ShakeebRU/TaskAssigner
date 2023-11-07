@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:taskapp/providers/done_task_provider.dart';
 
 import '../components/images_widget.dart';
+import '../components/pdf_widget.dart';
 import '../components/rating_widget.dart';
 import '../models/user_model.dart';
 import '../utils/preferences.dart';
@@ -286,6 +287,15 @@ class _DoneTaskScreenState extends State<DoneTaskScreen> {
                                                   .toLowerCase() ==
                                               "image"
                                           ? ImagesWidget(
+                                              taskId: controller.searchList!
+                                                  .listdata[index].taskID,
+                                            )
+                                          : const SizedBox.shrink(),
+                                      controller.searchList!.listdata[index]
+                                                  .messageType
+                                                  .toLowerCase() ==
+                                              "pdf"
+                                          ? PDFWidgetScreen(
                                               taskId: controller.searchList!
                                                   .listdata[index].taskID,
                                             )

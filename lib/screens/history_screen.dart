@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:taskapp/providers/history_provider.dart';
 
 import '../components/images_widget.dart';
+import '../components/pdf_widget.dart';
 import '../utils/utils.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -197,6 +198,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                                   .toLowerCase() ==
                                               "image"
                                           ? ImagesWidget(
+                                              taskId: controller.searchList!
+                                                  .listdata[index].taskID,
+                                            )
+                                          : const SizedBox.shrink(),
+                                      controller.searchList!.listdata[index]
+                                                  .messageType
+                                                  .toLowerCase() ==
+                                              "pdf"
+                                          ? PDFWidgetScreen(
                                               taskId: controller.searchList!
                                                   .listdata[index].taskID,
                                             )

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:taskapp/providers/home_screen_provider.dart';
 import 'package:taskapp/screens/add_task_screen.dart';
 import '../components/images_widget.dart';
+import '../components/pdf_widget.dart';
 import '../models/user_model.dart';
 import '../utils/preferences.dart';
 import '../utils/utils.dart';
@@ -22,10 +23,10 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (BuildContext context) {
         return Consumer<HomeScreenProvider>(
             builder: (context, controller, child) => AlertDialog(
-                  title: Text('Cencel Task'),
+                  title: const Text('Cencel Task'),
                   content: TextField(
                     controller: controller.remarksController,
-                    decoration: InputDecoration(labelText: 'Remarks'),
+                    decoration: const InputDecoration(labelText: 'Remarks'),
                   ),
                   actions: [
                     TextButton(
@@ -273,6 +274,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   .toLowerCase() ==
                                               "image"
                                           ? ImagesWidget(
+                                              taskId: controller.searchList!
+                                                  .listdata[index].taskID,
+                                            )
+                                          : const SizedBox.shrink(),
+                                      controller.searchList!.listdata[index]
+                                                  .messageType
+                                                  .toLowerCase() ==
+                                              "pdf"
+                                          ? PDFWidgetScreen(
                                               taskId: controller.searchList!
                                                   .listdata[index].taskID,
                                             )

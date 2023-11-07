@@ -55,6 +55,8 @@ class NewHomeScreenProvider with ChangeNotifier {
     }
   }
 
+  String choice = "";
+  List<String> pdfList = [];
   String str = "";
   int? selectedCustumerId;
   String messegeText = "";
@@ -76,20 +78,24 @@ class NewHomeScreenProvider with ChangeNotifier {
       "detailCode": selectedCustumerId,
       "taskDetail": messegeController.text,
       "stafflist": staffController.length == 0 ? null : staffController,
-      "messageType": pickedImage != null
-          ? "Image"
-          : str != ""
-              ? "Audio"
-              : "Text",
+      "messageType": choice == "pdf"
+          ? "pdf"
+          : pickedImage != null
+              ? "Image"
+              : str != ""
+                  ? "Audio"
+                  : "Text",
       "imageAudio": {
         "computerNo": 0,
         "imageBase64": str,
         "audioTranslate": "",
-        "type": pickedImage != null
-            ? "Image"
-            : str != ""
-                ? "Audio"
-                : "Text"
+        "type": choice == "pdf"
+            ? "pdf"
+            : pickedImage != null
+                ? "Image"
+                : str != ""
+                    ? "Audio"
+                    : "Text"
       }
     };
     print("data : ${jsonEncode(data)}");
@@ -129,7 +135,31 @@ class NewHomeScreenProvider with ChangeNotifier {
             print(response1.body);
           }
         }
+        if (choice == "pdf") {
+          print("________Welcome__________");
+          for (int i = 0; i < pdfList.length; i++) {
+            Map<String, dynamic> data1 = {
+              "computerNo": int.parse(result1.returnId),
+              "imageBase64": "${pdfList[i]}",
+              "audioTranslate": "string",
+              "type": "string",
+              "subID": i,
+              "imageURL": "string"
+            };
 
+            print("data : ${jsonEncode(data1)}");
+            Map<String, String> header1 = {
+              'Authorization': 'Bearer ${userData!.token}',
+              'Content-Type': 'application/json'
+            };
+            // print(data);
+            Response response1 = await post(Uri.parse(Utils.uploadPDFTask),
+                headers: header1, body: jsonEncode(data1));
+            print(response1.body);
+          }
+        }
+        choice = "";
+        pdfList = [];
         messegeController.clear();
         pickedImage = null;
         str = "";
@@ -167,8 +197,7 @@ class NewHomeScreenProvider with ChangeNotifier {
               width: 200.0,
               child: Padding(
                   padding: const EdgeInsets.all(10.0),
-                  child: Lottie.network(
-                      "https://lottie.host/205f9a22-3e08-4884-8fb1-31b3ea473735/CHLMhdKkEo.json")),
+                  child: Lottie.asset("assets/done.json")),
             ),
             const Padding(padding: EdgeInsets.only(top: 5.0)),
             TextButton(
